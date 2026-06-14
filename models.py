@@ -7,7 +7,7 @@ private (name-mangled) fields exposed through explicit getter methods.
 
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
 
 
 class Food:
@@ -33,9 +33,10 @@ class Food:
 
 
 class Menu:
-    """The full catalog of items; supports filtering by category."""
+    """The full catalog of items; supports filtering by category and
+    sorting by popularity."""
 
-    def __init__(self, items: List[Food] = None):
+    def __init__(self, items: Optional[List[Food]] = None):
         self.__items: List[Food] = items if items is not None else []
 
     def addItem(self, item: Food) -> None:
@@ -50,11 +51,18 @@ class Menu:
     def filterByCategory(self, category: str) -> List[Food]:
         return [item for item in self.__items if item.getCategory() == category]
 
+    def sortByPopularity(self, descending: bool = True) -> List[Food]:
+        """Return items ordered by popularity rating (most popular first by
+        default). Non-mutating: the menu's own order is left unchanged."""
+        return sorted(
+            self.__items, key=lambda item: item.getPopularityRating(), reverse=descending
+        )
+
 
 class Transaction:
     """Groups the items a user picked and computes the total cost."""
 
-    def __init__(self, selected_items: List[Food] = None):
+    def __init__(self, selected_items: Optional[List[Food]] = None):
         self.__selected_items: List[Food] = selected_items if selected_items is not None else []
 
     def addItem(self, item: Food) -> None:
@@ -70,7 +78,7 @@ class Transaction:
 class Customer:
     """A customer, tracked by name and past purchase history."""
 
-    def __init__(self, name: str, purchase_history: List[Transaction] = None):
+    def __init__(self, name: str, purchase_history: Optional[List[Transaction]] = None):
         self.__name = name
         self.__purchase_history: List[Transaction] = (
             purchase_history if purchase_history is not None else []
